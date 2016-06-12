@@ -1,65 +1,128 @@
+<style>
+    body {
+        font-family: "Courier";
+    }
+    table{
+        border:1px solid black;
+    }
+    table thead td{
+        text-align:center;
+    }
+    table tbody td:nth-child(n+3){
+        text-align: right;
+    }
+</style>
+<meta charset="UTF-8">
+<div>Я Вас прив!</div>
+<table>
 <?php
 
-    $summa = $rowNumber = 0;
+    $summa = 0;
       $textTable = '';
 
-    define( 'LINE_TABLE', '______________________________________________<br>' . PHP_EOL);
-    define( 'LINE_HEADS', '----------------------------------------------<br>' . PHP_EOL);
-    const COL_LINE = '|  ';
+    $products = array(
+        array(
+            'names' => '<a>   iPhone          </a>',
+            'cost' => 25500,
+            'count' => 1,
+            'available' => false,
+            'action' => 20,
+        ),
+        array(
+            'names' => '   fmModule         _',
+            'cost' => 1500,
+            'count' => 2,
+            'available' => true,
+        ),
+        array(
+            'names' => '   packet          _',
+            'cost' => 15,
+            'count' => 11,
+            'available' => true,
+        ),
+        array(
+            'names' => '   bantly          _',
+            'cost' => 150,
+            'count' => 1,
+            'available' => true,
+            'action' => 100,
+        ),
+    );
+?>
+    <thead>
 
-    $tovar1 = '<a>   iPhone          </a>';
-    $costTovar1 = 'sdsd' + 25500;
-    $countTovar1 = 1;
-    $available1   = false;
+    <td>#</td><td>Name</td><td>Cost</td><td>Count</td><td>Sum</td><td>Avail</td><td>Sale</td>
 
- //   $summa = 0; $costTovar*$countTovar;
+    </thead>
+    <tbody>
+<?php
+    const COL_LINE = '</td><td>';
+    const BEGIN_ROW = '<tr><td>';
+    const END_ROW = '</td><tr>';
 
-    $tovar2 = '   fmModule         _';
-    $costTovar2 = 1500;
-    $countTovar2 = 10;
-    $available2   = True;
+for( $i = 0; $i < count($products); $i++)
+{
+    $textAvailable = 'товар ' . ($products[$i]['available'] ? ' готово к отгрузке' : 'ждем поставки - ok');
 
+    $action = array_key_exists('action', $products[$i]) ? (100 - $products[$i]['action'])/100 : 1;
 
-    $tovar3 = '   packet          _';
-    $costTovar3 = 15;
-    $countTovar3 = 11;
-    $available3   = True;
+    $summaProduct = $products[$i]['cost']*$products[$i]['count'] * $action;
 
-//знаю, что должно быть наоборот, но у меня не работает!
-    $sapi = php_sapi_name();
-    if ($sapi=='cli'){
+    $textTable .= BEGIN_ROW . ($i+1);
 
-        for($i=0;$i<=4;$i++){
-
-            switch($i){
-                case(0):
-                    $textTable .= LINE_TABLE . COL_LINE . "#". COL_LINE . "Name               ". COL_LINE . " Price ". COL_LINE . "Num ". COL_LINE . "Sum ". COL_LINE . "<br>" . PHP_EOL . LINE_HEADS;
-                    break;
-                case(4):
-                    $textTable .= COL_LINE . "Total order sum = $summa";
-                    break;
-                default:
-                    $textTable .= COL_LINE . $i. COL_LINE . ${'tovar'.$i} . COL_LINE . ${'costTovar'.$i} . COL_LINE . ${'countTovar'.$i} . COL_LINE . ${'costTovar'.$i}*${'countTovar'.$i} . COL_LINE . 'product ' . (${'available'.$i}  ? ' ready for shipping' : 'waiting for supply - ok') . "<br>" . PHP_EOL;
-                    $summa += ${'costTovar'.$i}*${'countTovar'.$i};
-            }
+    foreach ($products[$i] as $key=>$value){
+        switch ($key){
+            case 'count':
+                $textTable .= COL_LINE . $value . COL_LINE . $summaProduct;
+                break;
+            case 'available':
+                $textTable .= COL_LINE . $textAvailable;
+                break;
+            default:
+                $textTable .= COL_LINE . $value ;
         }
-        echo (strip_tags($textTable));
-    }else{
-            for($i=0;$i<=4;$i++) {
 
-                switch ($i) {
-                    case(0):
-                        $textTable .= LINE_TABLE . COL_LINE . "#" . COL_LINE . "Name" . COL_LINE . " Price " . COL_LINE . "Num " . COL_LINE . "Sum " . COL_LINE . "<br>" . PHP_EOL . LINE_HEADS;
-                        break;
-                    case(4):
-                        $textTable .= COL_LINE . "Total order sum = $summa";
-                        break;
-                    default:
-                        $textTable .= COL_LINE . $i . COL_LINE . ${'tovar' . $i} . COL_LINE . ${'costTovar' . $i} . COL_LINE . ${'countTovar' . $i} . COL_LINE . ${'costTovar' . $i} * ${'countTovar' . $i} . COL_LINE . 'product ' . (${'available' . $i} ? ' ready for shipping' : 'waiting for supply - ok') . "<br>" . PHP_EOL;
-                        $summa += ${'costTovar' . $i} * ${'countTovar' . $i};
-                }
-            }
-            echo (print $textTable);
+        //$a=$key;
     }
 
+    $textTable .= END_ROW;
 
+    $summa += $summaProduct;
+}
+
+
+$request = array_multisort($_REQUEST['cost'], SORT_ASC, SORT_NUMERIC, $_REQUEST['name'], $_REQUEST['action']);
+
+for($i=0;$i<(count($_REQUEST['name']));$i++) {
+
+    $textTable .= BEGIN_ROW . (count($products) + $i + 1) . COL_LINE;
+
+    foreach ($_REQUEST as $key=>$value) {
+        switch($key) {
+            case'count':
+                $textTable .= 1 . COL_LINE;
+                break;
+            case'sum':
+                $textTable .= ($_REQUEST['cost'][$i]*(100 -$_REQUEST['action'][$i])/100) . COL_LINE;
+                break;
+            case'avail':
+                $textTable .= 'товар готово к отгрузке' . COL_LINE;
+                break;
+            default:
+                $textTable .= $value[$i]. COL_LINE;
+        }
+    }
+    $summa += ($_REQUEST['cost'][$i]*(100 -$_REQUEST['action'][$i])/100);
+}
+
+$textTable .= BEGIN_ROW . '' . COL_LINE. "Общая сумма заказа" . COL_LINE . '' . COL_LINE. '' . COL_LINE . $summa . END_ROW;
+
+echo $textTable;
+?>
+    </tbody>
+</table>
+
+<?php
+//echo '<pre>';
+//var_dump($_REQUEST);
+//echo '</pre>';
