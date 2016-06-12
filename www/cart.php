@@ -25,20 +25,41 @@
     $countTovar3 = 11;
     $available3   = True;
 
-    for($i=0;$i<=4;$i++){
+//знаю, что должно быть наоборот, но у меня не работает!
+    $sapi = php_sapi_name();
+    if ($sapi=='cli'){
 
-        switch($i){
-            case(0):
-                $textTable .= LINE_TABLE . COL_LINE . "#". COL_LINE . "Name". COL_LINE . " Цена ". COL_LINE . "Количество ". COL_LINE . "Сумма ". COL_LINE . "<br>" . PHP_EOL . LINE_HEADS;
-                break;
-            case(4):
-                $textTable .= COL_LINE . "Общая сумма заказа = $summa";
-                break;
-            default:
-                $textTable .= COL_LINE . $i. COL_LINE . ${'tovar'.$i} . COL_LINE . ${'costTovar'.$i} . COL_LINE . ${'countTovar'.$i} . COL_LINE . ${'costTovar'.$i}*${'countTovar'.$i} . COL_LINE . 'товар ' . (${'available'.$i}  ? ' готово к отгрузке' : 'ждем поставки - ok') . "<br>";
-                $summa += ${'costTovar'.$i}*${'countTovar'.$i};
+        for($i=0;$i<=4;$i++){
+
+            switch($i){
+                case(0):
+                    $textTable .= LINE_TABLE . COL_LINE . "#". COL_LINE . "Name               ". COL_LINE . " Price ". COL_LINE . "Num ". COL_LINE . "Sum ". COL_LINE . "<br>" . PHP_EOL . LINE_HEADS;
+                    break;
+                case(4):
+                    $textTable .= COL_LINE . "Total order sum = $summa";
+                    break;
+                default:
+                    $textTable .= COL_LINE . $i. COL_LINE . ${'tovar'.$i} . COL_LINE . ${'costTovar'.$i} . COL_LINE . ${'countTovar'.$i} . COL_LINE . ${'costTovar'.$i}*${'countTovar'.$i} . COL_LINE . 'product ' . (${'available'.$i}  ? ' ready for shipping' : 'waiting for supply - ok') . "<br>" . PHP_EOL;
+                    $summa += ${'costTovar'.$i}*${'countTovar'.$i};
+            }
         }
-        
+        echo (strip_tags($textTable));
+    }else{
+            for($i=0;$i<=4;$i++) {
+
+                switch ($i) {
+                    case(0):
+                        $textTable .= LINE_TABLE . COL_LINE . "#" . COL_LINE . "Name" . COL_LINE . " Price " . COL_LINE . "Num " . COL_LINE . "Sum " . COL_LINE . "<br>" . PHP_EOL . LINE_HEADS;
+                        break;
+                    case(4):
+                        $textTable .= COL_LINE . "Total order sum = $summa";
+                        break;
+                    default:
+                        $textTable .= COL_LINE . $i . COL_LINE . ${'tovar' . $i} . COL_LINE . ${'costTovar' . $i} . COL_LINE . ${'countTovar' . $i} . COL_LINE . ${'costTovar' . $i} * ${'countTovar' . $i} . COL_LINE . 'product ' . (${'available' . $i} ? ' ready for shipping' : 'waiting for supply - ok') . "<br>" . PHP_EOL;
+                        $summa += ${'costTovar' . $i} * ${'countTovar' . $i};
+                }
+            }
+            echo (print $textTable);
     }
 
-echo (print $textTable);
+
